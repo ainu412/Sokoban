@@ -2,7 +2,6 @@
 #include <graphics.h>
 #include <Windows.h>
 #include <conio.h>
-
 //墙: 0，地板: 1，箱子目的地: 2,  小人: MAN,	箱子: BOX, 箱子命中目标: HIT
 //舞台宽度960*768mm
 //舞台图片
@@ -21,8 +20,7 @@
 #define DOWNK 's'
 #define UPK 'w'
 #define QUITK 'q'
-
-enum REFER{//refer-指代,设置为三个字母,游戏地图整齐
+enum _PROPS{//refer-指代
 	WAL,//墙
 	FLR,//普通地板
 	DES,//目的地地板
@@ -30,7 +28,21 @@ enum REFER{//refer-指代,设置为三个字母,游戏地图整齐
 	BOX,//箱子
 	HIT,//到达目的地的箱子
 	ALL
-}pic;
+}prop;
+enum _DIRECTION{//键入方向,有限
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+}direct;
+
+struct _POS{
+	int x;
+	int y;
+	int nxtX;
+	int nxtY;
+}man, box;
+
 /*游戏地图*/
 int map[ROW][COLUMN] = {
 	{   WAL,  WAL,   WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL	},
@@ -47,49 +59,31 @@ int map[ROW][COLUMN] = {
 IMAGE images[ALL];
 IMAGE bg_image;//bg-blackground-background
 
-enum KEY{//键入方向,有限
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-}key;
-
-struct _POS{
-	int x;
-	int y;
-	int nxtX;
-	int nxtY;
-}man, box;
-
-#define isValid(pic) pic.nxtX >= 0 && pic.nxtX < COLUMN && pic.nxtY >= 0 && pic.nxtY < ROW //判断下一位置是否超过格子群
-
-//把坐标(x,y)的格子换成REFER对应图片
-void changeMap(int x, int y, enum REFER pic){//定义枚举变量后函数调用-enum类型而非int型
-	map[y][x] = pic;
-	putimage(START_CELLX+x*CELL, START_CELLY+y*CELL, &images[pic]);
+/**********************************
+*改变游戏地图视图中的
+*
+*
+*
+***********************************/
+void changeMap(int line, int column, enum _PROPS prop){
+	map[line][column] = prop;
+	putimage(START_CELLX+column*CELL, START_CELLY+line*CELL, &images[prop]);
 }
 
-void keyCtrl(enum KEY key){
-	if (isValid(man) && map[man.nxtX][man.nxtX] == FLR){
-		switch(key){
-		case UP: 
-			man.nxtY--;
-			break;
-		case DOWN:
-			man.nxtY++;
-			break;
-		case LEFT:
-			man.nxtX--;
-			break;
-		case RIGHT:
-			man.nxtX++;
-			break;		
+void gameControl(enum _DIRECTION direct){
+	int x = man.x;
+	int y = man.y;
+
+	if(direct == UP){
+		if ((x-1)>0 && map[x-1][y]==FLR){
+			changeMap(x-1, y, MAN);
+			man.x = x - 1;
+			changeMap(x, y, FLR);
 		}
-		changeMap(man.x, man.y, FLR);//在小人位置坐标改变前把小人位置改成地板
-		changeMap(man.nxtX, man.nxtY, MAN);//改变小人位置图片
-		man.x = man.nxtX;man.y = man.nxtY;//更新小人位置
+
 	}
 }
+
 
 int main(){
 	//搭台子
@@ -118,13 +112,13 @@ int main(){
 		if (_kbhit()){
 			char ch = _getch();
 			if (ch == UPK){
-				keyCtrl(UP);
+				gameControl(UP);
 			}else if (ch == DOWNK){
-				keyCtrl(DOWN);
+				gameControl(DOWN);
 			}else if (ch == LEFTK){
-				keyCtrl(LEFT);
+				gameControl(LEFT);
 			}else if (ch == RIGHTK){
-				keyCtrl(RIGHT);
+				gameControl(RIGHT);
 			}else if (ch == QUITK){
 				quit = true;
 			}
@@ -135,5 +129,3 @@ int main(){
 	system("pause");
 	return 0;
 }
-
-//顺序编译:若A中使用B,则B要在A之前声明
