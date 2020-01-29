@@ -22,7 +22,7 @@
 #define UPK 'w'
 #define QUITK 'q'
 
-#define isValid(pic) pic.c >= 0 && pic.c < COLUMN && pic.r >= 0 && pic.r < ROW //判断下一位置是否超过格子群
+#define isValid(pic) pic.c >= 0 && pic.c < COLUMN && pic.r >= 0 && pic.r < ROW  && map[nxt.r][nxt.c] != HIT//判断下一位置是否超过格子群或是否为箱子目的地
 
 enum REFER{//refer-指代,设置为三个字母,游戏地图整齐
 	WAL,//墙
@@ -59,34 +59,48 @@ enum KEY{//键入方向,有限
 struct _POS{
 	int r;
 	int c;
-}man;
+}man, box;
 
 //把坐标(x,y)的格子换成REFER对应图片
-void changeMap(int r, int c, enum REFER pic){//定义枚举变量后函数调用-enum类型而非int型
-	map[r][c] = pic;
-	putimage(START_CELLX+c*CELL, START_CELLY+r*CELL, &images[pic]);
+void changeMap(struct _POS *object, enum REFER pic){//定义枚举变量后函数调用-enum类型而非int型
+	map[object->r][object->c] = pic;
+	putimage(START_CELLX+object->c*CELL, START_CELLY+object->r*CELL, &images[pic]);
 }
 
 void keyCtrl(enum KEY key){
 	struct _POS nxt = man;
+	struct _POS nxt_nxt = man;
 
 	switch(key){
 	case UP: 
 		nxt.r--;
+		nxt_nxt.r-=2;
 		break;
 	case DOWN:
 		nxt.r++;
+		nxt_nxt.r+=2;
 		break;
 	case LEFT:
 		nxt.c--;
+		nxt_nxt.c-=2;
 		break;
 	case RIGHT:
 		nxt.c++;
+		nxt_nxt.c+=2;
 		break;		
 	}
-	if (isValid(man) && map[nxt.r][nxt.c] == FLR){
-		changeMap(man.r, man.c, FLR);//把小人位置改成地板
-		changeMap(nxt.r, nxt.c, MAN);//改变小人下一位置改为小人
+	if (isValid(nxt) && map[nxt.r][nxt.c] == FLR){
+		changeMap(&man, FLR);//把小人位置改成地板
+		changeMap(&nxt, MAN);//改变小人下一位置改为小人
+		man = nxt;
+	}else if (isValid(nxt_nxt) && map[nxt.r][nxt.c] == BOX){
+		if(map[nxt_nxt.r][nxt_nxt.c] == DES){//箱子前面是目的地
+			changeMap(&nxt_nxt, HIT);//小人的下下个为目的地
+		}else if(map[nxt_nxt.r][nxt_nxt.c] == FLR){//箱子前面是地
+			changeMap(&nxt_nxt, BOX);//改变箱子下一位置,改为箱子
+		}
+		changeMap(&man, FLR);//把小人位置改成地板
+		changeMap(&nxt, MAN);//改变小人下一位置,改为小人
 		man = nxt;
 	}
 }
