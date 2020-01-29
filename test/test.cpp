@@ -20,6 +20,8 @@
 #define DOWNK 's'
 #define UPK 'w'
 #define QUITK 'q'
+
+#define isValid(pos) pos.x>=0 && pos.x<ROW && pos.y>=0 && pos.y<COLUMN
 enum _PROPS{//refer-指代
 	WAL,//墙
 	FLR,//普通地板
@@ -39,9 +41,7 @@ enum _DIRECTION{//键入方向,有限
 struct _POS{
 	int x;
 	int y;
-	int nxtX;
-	int nxtY;
-}man, box;
+}man;
 
 /*游戏地图*/
 int map[ROW][COLUMN] = {
@@ -60,7 +60,7 @@ IMAGE images[ALL];
 IMAGE bg_image;//bg-blackground-background
 
 /**********************************
-*改变游戏地图视图中的
+*改变游戏地图视图
 *
 *
 *
@@ -74,15 +74,29 @@ void gameControl(enum _DIRECTION direct){
 	int x = man.x;
 	int y = man.y;
 
-	if(direct == UP){
-		if ((x-1)>0 && map[x-1][y]==FLR){
-			changeMap(x-1, y, MAN);
-			man.x = x - 1;
-			changeMap(x, y, FLR);
+	struct _POS next_pos = man;
+		switch(direct){
+		case UP: 
+			next_pos.x--;
+			break;
+		case DOWN:
+			next_pos.x++;
+			break;
+		case LEFT:
+			next_pos.y--;
+			break;
+		case RIGHT:
+			next_pos.y++;
+			break;		
 		}
 
+	if (isValid(man) && map[next_pos.x][next_pos.y] == FLR){
+			changeMap(next_pos.x, next_pos.y, MAN);
+			changeMap(man.x, man.y, FLR);
+			man = next_pos;
 	}
 }
+
 
 
 int main(){
