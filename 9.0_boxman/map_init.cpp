@@ -23,7 +23,7 @@
 #define QUITK 'q'
 
 #define isValid(pic) pic.c >= 0 && pic.c < COLUMN && pic.r >= 0 && pic.r < ROW  && map[nxt.r][nxt.c] != HIT//判断下一位置是否超过格子群或是否为箱子目的地
-
+#define TIMES 80//最快58步
 typedef enum REFER Refer;
 typedef enum KEY Key;
 enum REFER{//refer-指代,设置为三个字母,游戏地图整齐
@@ -110,10 +110,36 @@ void keyCtrl(Key key){
 	}
 }
 
+//超过TIMES步,游戏结束
+bool isGameOver = false;
+
+//遍历判断地图中是否所有目的地都击中,即遍历判断是否全部不是DES目的地
+bool success(){
+	for (int r=0; r<ROW; r++){
+		for (int c=0; c<COLUMN; c++){
+			if (map[r][c] == DES)	return false;//若某列某行为目的地,则未成功
+		}
+	}
+	return true;
+}
+
+void closingScene(bool success){	
+	putimage(0, 0, &bg_image); 
+	settextcolor(WHITE);
+	RECT rec = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+	settextstyle(20, 0, _T("黑体"));
+	if (success){
+		drawtext(_T("恭喜您~ \n 您终于成为了一个合格的搬箱子老司机！"), &rec,	DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		
+	}else {
+		drawtext(_T("超过步数了,失败！"), &rec,	DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	}
+	Sleep(1000);
+}
 int main(){
 	//搭台子
 	initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);
-	loadimage(&bg_image,_T("blackground.bmp"), SCREEN_WIDTH, SCREEN_HEIGHT, true);
+	loadimage(&bg_image, _T("blackground.bmp"), SCREEN_WIDTH, SCREEN_HEIGHT, true);
 	putimage(0, 0, &bg_image);
 
 	//加载格子图片
@@ -132,11 +158,15 @@ int main(){
 			}
 		}
 	}
-
+	int times = 0;
 	while (1){
 		if (_kbhit()){
 			char ch = _getch();
-			if (ch == UPK){
+			times++;
+			if (times  > TIMES){
+				closingScene(success());//打印失败
+				break;
+			}else if (ch == UPK){
 				keyCtrl(UP);
 			}else if (ch == DOWNK){
 				keyCtrl(DOWN);
@@ -145,13 +175,16 @@ int main(){
 			}else if (ch == RIGHTK){
 				keyCtrl(RIGHT);
 			}else if (ch == QUITK){
-				exit(0);
+				break;
+			}if (success()){//先移动地图,再判断成功
+				Sleep(100);//若成功先在成功位置停留0.1s
+				closingScene(success());//打印成功
+				break;//退出
 			}
+			Sleep(100);//间隔0.1s实行控制,防止程序运行频率过高,影响速度
 		}
-		Sleep(100);//间隔0.1s实行控制,防止程序运行频率过高,影响速度
 	}
-
-	system("pause");
+	closegraph();
 	return 0;
 }
 
