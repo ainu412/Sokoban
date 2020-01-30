@@ -1,40 +1,5 @@
-#include <iostream>
-#include <graphics.h>
-#include <Windows.h>
-#include <conio.h>
+#include "boxman.h"
 
-//墙: 0，地板: 1，箱子目的地: 2,  小人: MAN,	箱子: BOX, 箱子命中目标: HIT
-//舞台宽度960*768mm
-//舞台图片
-//loadimage 最后一个参数:是否是拉伸图片,true false差别不大
-
-#define ROW 9
-#define COLUMN 12
-#define SCREEN_WIDTH 1190
-#define SCREEN_HEIGHT 800
-#define START_CELLX (SCREEN_WIDTH-COLUMN*CELL)/2
-#define START_CELLY (SCREEN_HEIGHT-ROW*CELL)/2
-#define CELL 61
-
-#define LEFTK 'a'//UP+K-keyboard
-#define RIGHTK 'd'
-#define DOWNK 's'
-#define UPK 'w'
-#define QUITK 'q'
-
-#define isValid(pic) pic.c >= 0 && pic.c < COLUMN && pic.r >= 0 && pic.r < ROW  && map[nxt.r][nxt.c] != HIT//判断下一位置是否超过格子群或是否为箱子目的地
-#define TIMES 80//最快58步
-typedef enum REFER Refer;
-typedef enum KEY Key;
-enum REFER{//refer-指代,设置为三个字母,游戏地图整齐
-	WAL,//墙
-	FLR,//普通地板
-	DES,//目的地地板
-	MAN,//小人
-	BOX,//箱子
-	HIT,//到达目的地的箱子
-	ALL
-}pic;
 /*游戏地图*/
 int map[ROW][COLUMN] = {
 	{   WAL,  WAL,   WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL	},
@@ -47,21 +12,6 @@ int map[ROW][COLUMN] = {
 	{   WAL,  FLR,   WAL,  WAL,  FLR,  WAL,  FLR,  FLR,  WAL,  WAL,  FLR,  WAL	},
 	{   WAL,  WAL,   WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL,  WAL	},
 };
-
-IMAGE images[ALL];
-IMAGE bg_image;//bg-blackground-background
-
-enum KEY{//键入方向,有限
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-}key;
-
-struct _POS{
-	int r;
-	int c;
-}man, box;
 
 //把坐标(x,y)的格子换成REFER对应图片
 void changeMap(struct _POS *object, Refer pic){//定义枚举变量后函数调用-enum类型而非int型
@@ -110,9 +60,6 @@ void keyCtrl(Key key){
 	}
 }
 
-//超过TIMES步,游戏结束
-bool isGameOver = false;
-
 //遍历判断地图中是否所有目的地都击中,即遍历判断是否全部不是DES目的地
 bool success(){
 	for (int r=0; r<ROW; r++){
@@ -127,7 +74,7 @@ void closingScene(bool success){
 	putimage(0, 0, &bg_image); 
 	settextcolor(WHITE);
 	RECT rec = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-	settextstyle(20, 0, _T("黑体"));
+	settextstyle(30, 0, _T("黑体"));
 	if (success){
 		drawtext(_T("恭喜您~ \n 您终于成为了一个合格的搬箱子老司机！"), &rec,	DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		
@@ -136,6 +83,7 @@ void closingScene(bool success){
 	}
 	Sleep(1000);
 }
+
 int main(){
 	//搭台子
 	initgraph(SCREEN_WIDTH, SCREEN_HEIGHT);
