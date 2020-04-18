@@ -125,7 +125,7 @@ void closingScene(bool success){
 
 	if (success){
 		//drawtext(_T("恭喜您~ \n 您终于成为了一个合格的搬箱子老司机！"), &rec,	DT_CENTER | DT_VCENTER | DT_SINGLELINE);//只能输出常量字符串
-		outtextxy(TEXT_W_START, TEXT_H_START, "恭喜您~ \n 您终于成为了一个合格的搬箱子老司机！");
+		outtextxy(TEXT_W_START, TEXT_H_START, "恭喜您~ \n 您终于成为了一只合格的搬箱肉肉！");
 		outtextxy(TEXT_W_START, TEXT_H_START+LINE_HEIGHT, "您走过的步数为:");//8个字(含冒号)
 		outtextxy(TEXT_W_START+8*FONT_WIDTH, TEXT_H_START+LINE_HEIGHT, t);
 		outtextxy(TEXT_W_START, TEXT_H_START+2*LINE_HEIGHT, "设定通关步数为:");//8个字(含冒号)
@@ -134,7 +134,7 @@ void closingScene(bool success){
 		//drawtext(_T("超过步数",TIMES,"了,失败！"), &rec,	DT_CENTER | DT_VCENTER | DT_SINGLELINE);×-只能输出常量字符串
 		outtextxy(TEXT_W_START, TEXT_H_START, "超过设定步数:");//7个字(含冒号)
 		outtextxy(TEXT_W_START+7*FONT_WIDTH, TEXT_H_START, s);
-		outtextxy(TEXT_W_START, TEXT_H_START+LINE_HEIGHT, "失败!");
+		outtextxy(TEXT_W_START, TEXT_H_START+LINE_HEIGHT, "失败的肉肉呜呜呜!");
 	}
 	Sleep(5000);
 }
